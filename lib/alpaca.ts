@@ -1,23 +1,31 @@
 type StockSnapshotRecord = {
   latestTrade?: {
     price?: number;
+    p?: number;
   };
   latest_trade?: {
     price?: number;
+    p?: number;
   };
   latestQuote?: {
     bidPrice?: number;
     askPrice?: number;
+    bp?: number;
+    ap?: number;
   };
   latest_quote?: {
     bid_price?: number;
     ask_price?: number;
+    bp?: number;
+    ap?: number;
   };
   dailyBar?: {
     close?: number;
+    c?: number;
   };
   daily_bar?: {
     close?: number;
+    c?: number;
   };
 };
 
@@ -41,18 +49,35 @@ export type AlpacaOptionSnapshot = {
   };
   latestTrade?: {
     price?: number;
+    p?: number;
   };
   latest_trade?: {
     price?: number;
+    p?: number;
   };
   latestQuote?: {
     bidPrice?: number;
     askPrice?: number;
+    bp?: number;
+    ap?: number;
   };
   latest_quote?: {
     bid_price?: number;
     ask_price?: number;
+    bp?: number;
+    ap?: number;
   };
+};
+
+type AlpacaBar = {
+  c: number;
+  h: number;
+  l: number;
+  n?: number;
+  o: number;
+  t: string;
+  v: number;
+  vw?: number;
 };
 
 const TRADING_ROOT = (process.env.APCA_API_BASE_URL ||
@@ -107,11 +132,17 @@ export async function getStockSnapshots(symbols: string[]) {
     feed: "iex",
   });
 
-  const payload = await alpacaFetch<{ snapshots?: Record<string, StockSnapshotRecord> }>(
+  const payload = await alpacaFetch<{ snapshots?: Record<string, StockSnapshotRecord> } & Record<string, StockSnapshotRecord>>(
     `${DATA_ROOT}/v2/stocks/snapshots?${params.toString()}`,
   );
 
-  return payload.snapshots ?? {};
+  if (payload.snapshots) {
+    return payload.snapshots;
+  }
+
+  const rest = { ...payload };
+  delete rest.snapshots;
+  return rest;
 }
 
 export async function getOptionContracts(args: {
@@ -182,12 +213,41 @@ export async function getOptionSnapshots(contractSymbols: string[]) {
   return allSnapshots;
 }
 
+export async function getDailyBars(symbols: string[], start: string, end: string) {
+  const entries = await Promise.all(
+    symbols.map(async (symbol) => {
+      const params = new URLSearchParams({
+        symbols: symbol,
+        timeframe: "1Day",
+        start,
+        end,
+        adjustment: "raw",
+        feed: "iex",
+        sort: "asc",
+        limit: "250",
+      });
+
+      const payload = await alpacaFetch<{
+        bars?: Record<string, AlpacaBar[]>;
+      }>(`${DATA_ROOT}/v2/stocks/bars?${params.toString()}`);
+
+      return [symbol, payload.bars?.[symbol] ?? []] as const;
+    }),
+  );
+
+  return Object.fromEntries(entries);
+}
+
 export function extractStockPrice(snapshot: StockSnapshotRecord | undefined) {
   return (
     snapshot?.latestTrade?.price ??
+    snapshot?.latestTrade?.p ??
     snapshot?.latest_trade?.price ??
+    snapshot?.latest_trade?.p ??
     snapshot?.dailyBar?.close ??
+    snapshot?.dailyBar?.c ??
     snapshot?.daily_bar?.close ??
+    snapshot?.daily_bar?.c ??
     null
   );
 }
@@ -197,13 +257,13 @@ export function extractOptionQuote(snapshot: AlpacaOptionSnapshot | undefined) {
   const snakeQuote = snapshot?.latest_quote;
 
   return {
-    bid: latestQuote?.bidPrice ?? snakeQuote?.bid_price ?? null,
-    ask: latestQuote?.askPrice ?? snakeQuote?.ask_price ?? null,
+    bid: latestQuote?.bidPrice ?? latestQuote?.bp ?? snakeQuote?.bid_price ?? snakeQuote?.bp ?? null,
+    ask: latestQuote?.askPrice ?? latestQuote?.ap ?? snakeQuote?.ask_price ?? snakeQuote?.ap ?? null,
   };
 }
 
 export function extractOptionTradePrice(snapshot: AlpacaOptionSnapshot | undefined) {
-  return snapshot?.latestTrade?.price ?? snapshot?.latest_trade?.price ?? null;
+  return snapshot?.latestTrade?.price ?? snapshot?.latestTrade?.p ?? snapshot?.latest_trade?.price ?? snapshot?.latest_trade?.p ?? null;
 }
 
 export function extractOptionDelta(snapshot: AlpacaOptionSnapshot | undefined) {

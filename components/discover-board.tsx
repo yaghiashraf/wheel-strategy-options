@@ -125,10 +125,10 @@ export function DiscoverBoard() {
                   <div>
                     <p className="text-sm font-semibold text-[var(--ink)]">{item.symbol}</p>
                     <p className="mt-1 text-sm text-[var(--muted)]">
-                      {item.sector} | Market cap {formatCompactNumber(item.marketCap)}
+                      {item.sector} | 20D avg vol {formatCompactNumber(item.averageVolume)}
                     </p>
                     <p className="mt-1 text-sm text-[var(--muted)]">
-                      P/E {item.trailingPe?.toFixed(1) ?? "—"} | ROE {formatPercent(item.returnOnEquityPct)} | Rev growth {formatPercent(item.revenueGrowthPct)}
+                      30D move {formatPercent(item.thirtyDayChangePct ?? null)} | 50D trend {formatPercent(item.distanceFromFiftyDayPct ?? null)} | Realized vol {formatPercent(item.realizedVolatilityPct ?? null)}
                     </p>
                   </div>
                   <span className="rounded-full bg-[var(--night)] px-3 py-1 text-xs font-semibold text-[var(--sand)]">

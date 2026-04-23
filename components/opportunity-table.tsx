@@ -13,6 +13,14 @@ export function OpportunityTable({
   opportunities: OptionOpportunity[];
   strategy: Strategy;
 }) {
+  if (opportunities.length === 0) {
+    return (
+      <div className="panel p-6 text-sm text-[var(--muted)]">
+        No contracts matched the current filters. Loosen yield, delta, or OTM settings and run the screener again.
+      </div>
+    );
+  }
+
   return (
     <div className="table-shell">
       <table className="min-w-full text-left text-sm">

@@ -1,4 +1,5 @@
 import { average, clamp, ratingFromScore } from "@/lib/format";
+import { getCompanyMetadata } from "@/lib/company-metadata";
 import {
   extractOptionDelta,
   extractOptionIv,
@@ -149,8 +150,7 @@ export async function getStrategyIdeas(
       const row: OptionOpportunity = {
         symbol: baseSymbol,
         companyName: companyBySymbol.get(baseSymbol)?.companyName ??
-          baseSymbol ??
-          "Unknown",
+          getCompanyMetadata(baseSymbol).companyName,
         contractSymbol: contract.symbol,
         strategy,
         expirationDate: contract.expiration_date,
@@ -177,7 +177,7 @@ export async function getStrategyIdeas(
       return {
         ...row,
         symbol: baseSymbol,
-        companyName: companyBySymbol.get(baseSymbol)?.companyName ?? baseSymbol ?? "Unknown",
+        companyName: companyBySymbol.get(baseSymbol)?.companyName ?? getCompanyMetadata(baseSymbol).companyName,
       };
     })
     .filter((item) => {
@@ -272,6 +272,7 @@ export async function getStrategySummary(
 
   const company = fundamentals[0] as FundamentalRow | undefined;
   const opportunities = ideas.opportunities.filter((row) => row.symbol === upperSymbol);
+  const metadata = getCompanyMetadata(upperSymbol);
   const averageYieldPct = average(opportunities.map((row) => row.yieldPct));
   const maximumYieldPct = Math.max(...opportunities.map((row) => row.yieldPct), 0);
   const averageIvPct = average(opportunities.map((row) => row.impliedVolatilityPct));
@@ -279,11 +280,11 @@ export async function getStrategySummary(
 
   return {
     symbol: upperSymbol,
-    companyName: company?.companyName ?? upperSymbol,
-    sector: company?.sector ?? "Unknown",
-    industry: company?.industry ?? "Unknown",
+    companyName: company?.companyName ?? metadata.companyName,
+    sector: company?.sector ?? metadata.sector,
+    industry: company?.industry ?? metadata.industry,
     stockPrice: company?.price ?? opportunities[0]?.stockPrice ?? null,
-    marketCap: company?.marketCap ?? null,
+    marketCap: company?.marketCap ?? (metadata.marketCapBillions ? metadata.marketCapBillions * 1_000_000_000 : null),
     rating: ratingFromScore(company?.wheelScore ?? 55),
     averageYieldPct,
     maximumYieldPct,

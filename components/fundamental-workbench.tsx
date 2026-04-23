@@ -45,12 +45,12 @@ export function FundamentalWorkbench({ defaultSymbols }: { defaultSymbols: strin
     <div className="grid gap-6">
       <section className="hero-panel">
         <div className="max-w-3xl">
-          <p className="section-kicker">Fundamental + Technical Screener</p>
+          <p className="section-kicker">Wheel Stock Screener</p>
           <h1 className="mt-3 text-4xl font-semibold leading-tight text-[var(--sand)] md:text-5xl">
             Find wheel candidates you would actually be willing to own through assignment.
           </h1>
           <p className="mt-4 max-w-2xl text-base leading-7 text-[rgba(255,248,235,0.74)]">
-            This screen combines public Yahoo Finance fundamentals with a wheel suitability score that emphasizes liquidity, profitability, leverage, trend, and size.
+            This screen now runs entirely on Alpaca market data plus a curated company universe. It ranks names by liquidity, price trend, and realized volatility instead of relying on a brittle public fundamentals scraper.
           </p>
         </div>
       </section>
@@ -78,12 +78,11 @@ export function FundamentalWorkbench({ defaultSymbols }: { defaultSymbols: strin
                 <th className="px-4 py-3">Symbol</th>
                 <th className="px-4 py-3">Price</th>
                 <th className="px-4 py-3">Market Cap</th>
-                <th className="px-4 py-3">P/E</th>
-                <th className="px-4 py-3">Beta</th>
-                <th className="px-4 py-3">ROE</th>
-                <th className="px-4 py-3">Margin</th>
-                <th className="px-4 py-3">Debt/Equity</th>
-                <th className="px-4 py-3">Growth</th>
+                <th className="px-4 py-3">30D Move</th>
+                <th className="px-4 py-3">50D Trend</th>
+                <th className="px-4 py-3">200D Trend</th>
+                <th className="px-4 py-3">20D Avg Vol</th>
+                <th className="px-4 py-3">Realized Vol</th>
                 <th className="px-4 py-3">Wheel Score</th>
               </tr>
             </thead>
@@ -98,12 +97,11 @@ export function FundamentalWorkbench({ defaultSymbols }: { defaultSymbols: strin
                   </td>
                   <td className="px-4 py-4">{formatCurrency(item.price)}</td>
                   <td className="px-4 py-4">{formatCompactNumber(item.marketCap)}</td>
-                  <td className="px-4 py-4">{item.trailingPe?.toFixed(1) ?? "—"}</td>
-                  <td className="px-4 py-4">{item.beta?.toFixed(2) ?? "—"}</td>
-                  <td className="px-4 py-4">{formatPercent(item.returnOnEquityPct)}</td>
-                  <td className="px-4 py-4">{formatPercent(item.profitMarginPct)}</td>
-                  <td className="px-4 py-4">{item.debtToEquity?.toFixed(1) ?? "—"}</td>
-                  <td className="px-4 py-4">{formatPercent(item.revenueGrowthPct)}</td>
+                  <td className="px-4 py-4">{formatPercent(item.thirtyDayChangePct ?? null)}</td>
+                  <td className="px-4 py-4">{formatPercent(item.distanceFromFiftyDayPct ?? null)}</td>
+                  <td className="px-4 py-4">{formatPercent(item.distanceFromTwoHundredDayPct ?? null)}</td>
+                  <td className="px-4 py-4">{formatCompactNumber(item.averageVolume)}</td>
+                  <td className="px-4 py-4">{formatPercent(item.realizedVolatilityPct ?? null)}</td>
                   <td className="px-4 py-4">
                     <span className="rounded-full bg-[var(--night)] px-3 py-2 text-xs font-semibold text-[var(--sand)]">
                       {item.wheelScore}

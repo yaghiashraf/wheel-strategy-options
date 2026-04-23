@@ -56,6 +56,12 @@ export type FundamentalRow = {
   twoHundredDayAverage: number | null;
   averageVolume: number | null;
   targetPrice: number | null;
+  thirtyDayChangePct?: number | null;
+  realizedVolatilityPct?: number | null;
+  distanceFromFiftyDayPct?: number | null;
+  distanceFromTwoHundredDayPct?: number | null;
+  momentumScore?: number | null;
+  liquidityScore?: number | null;
   wheelScore: number;
 };
 

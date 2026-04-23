@@ -67,7 +67,7 @@ export function SymbolSummary({
         <div className="metric-card">
           <p className="metric-label">Market Cap / Rating</p>
           <p className="metric-value">
-            {formatCompactNumber(summary.marketCap)} · {summary.rating}
+            {(summary.marketCap ? formatCompactNumber(summary.marketCap) : summary.sector) + " · " + summary.rating}
           </p>
         </div>
       </section>
