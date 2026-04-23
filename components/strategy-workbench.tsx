@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Pause, Play, RotateCcw } from "lucide-react";
+import { Pause, Play, RotateCcw, SlidersHorizontal } from "lucide-react";
 import type { OptionOpportunity, Strategy } from "@/lib/types";
 import { OpportunityTable } from "@/components/opportunity-table";
 import type { UniverseName } from "@/lib/universe";
@@ -203,18 +203,20 @@ export function StrategyWorkbench({
 
   const progressPct =
     progress.total > 0 ? Math.round((progress.completed / progress.total) * 100) : 0;
-  const runLabel = loading ? "Scanning..." : universeMode === "sp500" ? "Scan S&P 500" : "Run scan";
+  const runLabel = loading ? "SCAN" : universeMode === "sp500" ? "SCAN SPX" : "SCAN";
+  const bestScore = rows[0]?.score ?? 0;
+  const topYield = rows[0]?.yieldPct ?? 0;
+  const avgYield =
+    rows.length > 0 ? rows.reduce((sum, row) => sum + row.yieldPct, 0) / rows.length : 0;
 
   return (
-    <div className="grid gap-6">
+    <div className="terminal-layout">
       <section className="desk-header">
         <div>
-          <p className="section-kicker">{title}</p>
-          <h1 className="mt-2 text-3xl font-semibold leading-tight text-[var(--ink)] md:text-4xl">
-            {description}
-          </h1>
+          <p className="terminal-symbol">{title}</p>
+          <h1>{description}</h1>
         </div>
-        <div className="grid gap-2 sm:grid-cols-3">
+        <div className="scan-stat-grid">
           <div className="scan-stat">
             <span>Universe</span>
             <strong>{universeLabel}</strong>
@@ -227,11 +229,23 @@ export function StrategyWorkbench({
             <span>Matches</span>
             <strong>{rows.length}</strong>
           </div>
+          <div className="scan-stat">
+            <span>Best Score</span>
+            <strong>{bestScore}</strong>
+          </div>
+          <div className="scan-stat">
+            <span>Top Yield</span>
+            <strong>{topYield.toFixed(2)}%</strong>
+          </div>
+          <div className="scan-stat">
+            <span>Avg Yield</span>
+            <strong>{avgYield.toFixed(2)}%</strong>
+          </div>
         </div>
       </section>
 
-      <section className="panel p-5 md:p-6">
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--line)] pb-4">
+      <section className="terminal-control-panel">
+        <div className="terminal-control-row">
           <div className="segmented-control">
             {universeOptions.map((option) => (
               <button
@@ -249,11 +263,11 @@ export function StrategyWorkbench({
               </button>
             ))}
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="terminal-actions">
             {loading ? (
               <button onClick={stopScan} className="secondary-button compact-button" type="button">
                 <Pause className="h-4 w-4" />
-                Stop
+                HALT
               </button>
             ) : null}
             <button onClick={() => loadData()} className="primary-button compact-button" disabled={loading} type="button">
@@ -263,8 +277,8 @@ export function StrategyWorkbench({
           </div>
         </div>
 
-        <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-8">
-          <label className="field">
+        <div className="terminal-filter-grid">
+          <label className="field terminal-symbol-input">
             <span className="field-label">Symbols</span>
             <input
               value={symbols}
@@ -307,26 +321,33 @@ export function StrategyWorkbench({
           </label>
         </div>
 
-        <div className="mt-5 grid gap-3">
+        <div className="terminal-progress-row">
           <div className="progress-track">
             <div style={{ width: `${progressPct}%` }} />
           </div>
-          <div className="flex flex-wrap items-center justify-between gap-3 text-sm text-[var(--muted)]">
-            <p>
+          <div className="terminal-run-meta">
+            <span>
               {progress.total > 0
-                ? `${progress.completed}/${progress.total} batches | ${progress.symbolsScanned}/${progress.totalSymbols} symbols`
-                : "Ready"}
-            </p>
+                ? `${progress.completed}/${progress.total} BATCHES`
+                : "IDLE"}
+            </span>
+            <span>{progress.symbolsScanned}/{progress.totalSymbols} SYM</span>
+            <span>{progressPct}%</span>
           {lastUpdated ? (
-            <p>
-              Updated {new Date(lastUpdated).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" })}
-            </p>
+            <span>
+              {new Date(lastUpdated).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" })}
+            </span>
           ) : null}
           </div>
         </div>
       </section>
 
-      {error ? <div className="panel p-6 text-sm text-[var(--rose)]">{error}</div> : null}
+      {error ? (
+        <div className="terminal-alert">
+          <SlidersHorizontal className="h-4 w-4" />
+          {error}
+        </div>
+      ) : null}
       {!error ? <OpportunityTable opportunities={rows} strategy={strategy} /> : null}
     </div>
   );

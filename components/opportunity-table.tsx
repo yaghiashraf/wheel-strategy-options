@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ExternalLink } from "lucide-react";
 import type { OptionOpportunity, Strategy } from "@/lib/types";
 import {
   formatCurrency,
@@ -15,61 +16,74 @@ export function OpportunityTable({
 }) {
   if (opportunities.length === 0) {
     return (
-      <div className="panel p-6 text-sm text-[var(--muted)]">
-        No contracts matched the current filters. Loosen yield, delta, or OTM settings and run the screener again.
+      <div className="terminal-empty">
+        <span>NO MATCHES</span>
+        <strong>Adjust filters or run a broader universe scan.</strong>
       </div>
     );
   }
 
   return (
-    <div className="table-shell">
-      <table className="min-w-full text-left text-sm">
-        <thead className="border-b border-[var(--line)] text-[11px] uppercase tracking-[0.16em] text-[var(--muted)]">
+    <div className="terminal-table-shell">
+      <div className="terminal-table-title">
+        <span>Ranked Contracts</span>
+        <strong>{opportunities.length} rows</strong>
+      </div>
+      <table className="terminal-table">
+        <thead>
           <tr>
-            <th className="px-4 py-3">Symbol</th>
-            <th className="px-4 py-3">Strike</th>
-            <th className="px-4 py-3">Expiration</th>
-            <th className="px-4 py-3">DTE</th>
-            <th className="px-4 py-3">Premium</th>
-            <th className="px-4 py-3">Yield</th>
-            <th className="px-4 py-3">Annualized</th>
-            <th className="px-4 py-3">OTM</th>
-            <th className="px-4 py-3">Delta</th>
-            <th className="px-4 py-3">IV</th>
-            <th className="px-4 py-3">OI</th>
-            <th className="px-4 py-3">Action</th>
+            <th>Rank</th>
+            <th>Underlying</th>
+            <th>Contract</th>
+            <th>Strike</th>
+            <th>Exp</th>
+            <th>DTE</th>
+            <th>Bid/Ask</th>
+            <th>Mid</th>
+            <th>Yield</th>
+            <th>Ann</th>
+            <th>OTM</th>
+            <th>Delta</th>
+            <th>IV</th>
+            <th>OI</th>
+            <th>Score</th>
+            <th />
           </tr>
         </thead>
         <tbody>
-          {opportunities.map((item) => (
-            <tr key={item.contractSymbol} className="border-b border-[rgba(244,239,229,0.06)] align-top">
-              <td className="px-4 py-4">
-                <p className="font-semibold text-[var(--ink)]">{item.symbol}</p>
-                <p className="max-w-[16rem] text-xs text-[var(--muted)]">{item.companyName}</p>
+          {opportunities.map((item, index) => (
+            <tr key={item.contractSymbol}>
+              <td className="muted-cell">#{index + 1}</td>
+              <td>
+                <div className="symbol-stack">
+                  <strong>{item.symbol}</strong>
+                  <span>{item.companyName}</span>
+                </div>
               </td>
-              <td className="px-4 py-4 font-medium">{formatCurrency(item.strike)}</td>
-              <td className="px-4 py-4">{item.expirationDate}</td>
-              <td className="px-4 py-4">{item.dte}</td>
-              <td className="px-4 py-4">
-                <p>{formatCurrency(item.premium)}</p>
-                <p className="text-xs text-[var(--muted)]">
-                  {formatCurrency(item.premiumPerContract, 0)} / contract
-                </p>
+              <td className="mono-cell">{item.contractSymbol}</td>
+              <td>{formatCurrency(item.strike)}</td>
+              <td>{item.expirationDate}</td>
+              <td>{item.dte}</td>
+              <td className="mono-cell">
+                {formatCurrency(item.bid)} / {formatCurrency(item.ask)}
               </td>
-              <td className="px-4 py-4 text-[var(--teal-700)]">{formatPercent(item.yieldPct)}</td>
-              <td className="px-4 py-4 text-[var(--ink)]">
-                {formatPercent(item.annualizedYieldPct)}
+              <td>{formatCurrency(item.mark)}</td>
+              <td className="positive-cell">{formatPercent(item.yieldPct)}</td>
+              <td>{formatPercent(item.annualizedYieldPct)}</td>
+              <td>{formatPercent(item.otmPct)}</td>
+              <td>{formatDelta(item.delta)}</td>
+              <td>{formatPercent(item.impliedVolatilityPct)}</td>
+              <td>{item.openInterest ?? "-"}</td>
+              <td>
+                <span className="score-badge">{item.score}</span>
               </td>
-              <td className="px-4 py-4">{formatPercent(item.otmPct)}</td>
-              <td className="px-4 py-4">{formatDelta(item.delta)}</td>
-              <td className="px-4 py-4">{formatPercent(item.impliedVolatilityPct)}</td>
-              <td className="px-4 py-4">{item.openInterest ?? "—"}</td>
-              <td className="px-4 py-4">
+              <td>
                 <Link
                   href={`/${strategy}/${item.symbol.toLowerCase()}`}
-                  className="inline-flex rounded-full border border-[var(--line)] bg-[rgba(255,255,255,0.04)] px-3 py-2 text-xs font-semibold text-[var(--ink)] transition hover:border-[var(--teal-700)] hover:text-[var(--teal-700)]"
+                  className="terminal-row-link"
+                  aria-label={`Open ${item.symbol}`}
                 >
-                  View symbol
+                  <ExternalLink className="h-3.5 w-3.5" />
                 </Link>
               </td>
             </tr>
