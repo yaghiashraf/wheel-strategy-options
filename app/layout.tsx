@@ -3,7 +3,7 @@ import "./globals.css";
 import { TopNav } from "@/components/top-nav";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://wheel-income-lab.vercel.app"),
+  metadataBase: new URL("https://wheel-strategy-options.vercel.app"),
   title: {
     default: "Wheel Strategy Income Lab",
     template: "%s | Wheel Strategy Income Lab",
@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#0b181a",
+  themeColor: "#071116",
 };
 
 export default function RootLayout({

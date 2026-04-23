@@ -26,15 +26,27 @@ export function CalculatorLab() {
 
   return (
     <div className="grid gap-6">
-      <section className="hero-panel">
-        <div className="max-w-3xl">
-          <p className="section-kicker">Wheel Calculators</p>
-          <h1 className="mt-3 text-4xl font-semibold leading-tight text-[var(--sand)] md:text-5xl">
-            Quick option math for yield, collateral, breakeven, and max-profit checks.
-          </h1>
-          <p className="mt-4 max-w-2xl text-base leading-7 text-[rgba(255,248,235,0.74)]">
-            The original site spreads these across many pages. This version keeps the core wheel calculations in one practical workbench.
-          </p>
+      <section className="hero-panel subtle-grid">
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-end">
+          <div className="max-w-3xl">
+            <span className="eyebrow-chip">Wheel Calculators</span>
+            <h1 className="display-title mt-5 text-4xl font-semibold leading-[0.96] text-[var(--sand)] md:text-6xl">
+              Quick option math for yield, collateral, breakeven, and max-profit checks.
+            </h1>
+            <p className="mt-5 max-w-2xl text-base leading-7 text-[rgba(255,248,235,0.74)]">
+              Instead of scattering utility pages across the product, this desk keeps the core wheel calculations in one focused workbench you can use alongside the live screeners.
+            </p>
+          </div>
+          <div className="dashboard-strip">
+            <div className="hero-stat">
+              <p className="hero-stat-label">Primary use</p>
+              <p className="hero-stat-value">Check yield before execution</p>
+            </div>
+            <div className="hero-stat">
+              <p className="hero-stat-label">Coverage</p>
+              <p className="hero-stat-value">Put breakeven, collateral, max profit</p>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -94,7 +106,7 @@ export function CalculatorLab() {
             <div key={tool.title} className="panel p-5">
               <p className="text-lg font-semibold text-[var(--ink)]">{tool.title}</p>
               <p className="mt-2 text-sm leading-7 text-[var(--muted)]">{tool.description}</p>
-              <div className="mt-4 rounded-2xl bg-[var(--night)] px-4 py-3 font-mono text-sm text-[var(--sand)]">
+              <div className="mt-4 rounded-2xl border border-[var(--line)] bg-[rgba(255,255,255,0.04)] px-4 py-3 font-mono text-sm text-[var(--sand)]">
                 {tool.formula}
               </div>
             </div>

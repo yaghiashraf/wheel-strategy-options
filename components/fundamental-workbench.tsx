@@ -43,23 +43,40 @@ export function FundamentalWorkbench({ defaultSymbols }: { defaultSymbols: strin
 
   return (
     <div className="grid gap-6">
-      <section className="hero-panel">
-        <div className="max-w-3xl">
-          <p className="section-kicker">Wheel Stock Screener</p>
-          <h1 className="mt-3 text-4xl font-semibold leading-tight text-[var(--sand)] md:text-5xl">
-            Find wheel candidates you would actually be willing to own through assignment.
-          </h1>
-          <p className="mt-4 max-w-2xl text-base leading-7 text-[rgba(255,248,235,0.74)]">
-            This screen now runs entirely on Alpaca market data plus a curated company universe. It ranks names by liquidity, price trend, and realized volatility instead of relying on a brittle public fundamentals scraper.
-          </p>
+      <section className="hero-panel subtle-grid">
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-end">
+          <div className="max-w-3xl">
+            <span className="eyebrow-chip">Wheel Stock Screener</span>
+            <h1 className="display-title mt-5 text-4xl font-semibold leading-[0.96] text-[var(--sand)] md:text-6xl">
+              Find wheel candidates you would actually be willing to own through assignment.
+            </h1>
+            <p className="mt-5 max-w-2xl text-base leading-7 text-[rgba(255,248,235,0.74)]">
+              This screen runs on Alpaca market data plus a curated company universe. It ranks names by liquidity, price trend, and realized volatility instead of leaning on unstable public scrapers.
+            </p>
+          </div>
+          <div className="dashboard-strip">
+            <div className="hero-stat">
+              <p className="hero-stat-label">Use case</p>
+              <p className="hero-stat-value">Pre-trade ownership filter</p>
+            </div>
+            <div className="hero-stat">
+              <p className="hero-stat-label">Inputs</p>
+              <p className="hero-stat-value">Price trend, liquidity, realized vol</p>
+            </div>
+          </div>
         </div>
       </section>
 
-      <section className="panel p-5">
+      <section className="panel p-5 md:p-6">
         <div className="flex flex-col gap-4 md:flex-row md:items-end">
           <label className="field flex-1">
             <span className="field-label">Symbols</span>
-            <input value={symbols} onChange={(event) => setSymbols(event.target.value)} className="field-input" />
+            <input
+              value={symbols}
+              onChange={(event) => setSymbols(event.target.value)}
+              className="field-input"
+              placeholder="AAPL,MSFT,NVDA"
+            />
           </label>
           <button onClick={loadData} className="primary-button" type="button">
             Run stock screener

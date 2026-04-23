@@ -73,23 +73,56 @@ export function StrategyWorkbench({
 
   return (
     <div className="grid gap-6">
-      <section className="hero-panel">
-        <div className="max-w-3xl">
-          <p className="section-kicker">{title}</p>
-          <h1 className="mt-3 text-4xl font-semibold leading-tight text-[var(--sand)] md:text-5xl">
-            {description}
-          </h1>
-          <p className="mt-4 max-w-2xl text-base leading-7 text-[rgba(255,248,235,0.74)]">
-            Alpaca handles the option chain, quotes, and greeks. This workbench ranks contracts by raw yield, annualized yield, OTM distance, delta fit, and liquidity.
-          </p>
+      <section className="hero-panel subtle-grid">
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-end">
+          <div className="max-w-3xl">
+            <span className="eyebrow-chip">{title}</span>
+            <h1 className="display-title mt-5 text-4xl font-semibold leading-[0.96] text-[var(--sand)] md:text-6xl">
+              {description}
+            </h1>
+            <p className="mt-5 max-w-2xl text-base leading-7 text-[rgba(255,248,235,0.74)]">
+              Alpaca handles the option chain, quotes, and greeks. This desk ranks contracts by raw yield, annualized yield, OTM distance, delta fit, and liquidity instead of forcing you to scan chains manually.
+            </p>
+          </div>
+          <div className="dashboard-strip">
+            <div className="hero-stat">
+              <p className="hero-stat-label">Default universe</p>
+              <p className="hero-stat-value">{defaultSymbols}</p>
+            </div>
+            <div className="hero-stat">
+              <p className="hero-stat-label">Target window</p>
+              <p className="hero-stat-value">
+                {minDte}-{maxDte} DTE
+              </p>
+            </div>
+            <div className="hero-stat">
+              <p className="hero-stat-label">Rank emphasis</p>
+              <p className="hero-stat-value">
+                {strategy === "covered-call" ? "Income with controlled upside sacrifice" : "Premium with disciplined assignment price"}
+              </p>
+            </div>
+          </div>
         </div>
       </section>
 
-      <section className="panel p-5">
+      <section className="panel p-5 md:p-6">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p className="section-kicker">Filter Deck</p>
+            <p className="mt-2 text-xl font-semibold text-[var(--ink)]">Tune the contract shortlist before you run the desk.</p>
+          </div>
+          <span className="status-pill">Live option chain and greeks</span>
+        </div>
+        <div className="glass-divider my-5" />
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
           <label className="field">
             <span className="field-label">Symbols</span>
-            <input value={symbols} onChange={(event) => setSymbols(event.target.value)} className="field-input" />
+            <input
+              value={symbols}
+              onChange={(event) => setSymbols(event.target.value)}
+              className="field-input"
+              placeholder="AAPL,MSFT,NVDA"
+            />
           </label>
           <label className="field">
             <span className="field-label">Min DTE</span>
@@ -114,7 +147,7 @@ export function StrategyWorkbench({
         </div>
         <div className="mt-5 flex flex-wrap items-center gap-3">
           <button onClick={loadData} className="primary-button" type="button">
-            Run screener
+            Run desk
           </button>
           {lastUpdated ? (
             <p className="text-sm text-[var(--muted)]">

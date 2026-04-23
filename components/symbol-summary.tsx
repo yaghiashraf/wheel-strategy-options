@@ -17,14 +17,14 @@ export function SymbolSummary({
 }) {
   return (
     <div className="grid gap-6">
-      <section className="hero-panel">
+      <section className="hero-panel subtle-grid">
         <div className="max-w-4xl">
-          <p className="section-kicker">{titleCase(strategy)}</p>
-          <h1 className="mt-3 text-4xl font-semibold leading-tight text-[var(--sand)] md:text-5xl">
+          <span className="eyebrow-chip">{titleCase(strategy)}</span>
+          <h1 className="display-title mt-5 text-4xl font-semibold leading-[0.96] text-[var(--sand)] md:text-6xl">
             {summary.companyName} ({summary.symbol}) opportunities ranked for the wheel.
           </h1>
           <p className="mt-4 max-w-2xl text-base leading-7 text-[rgba(255,248,235,0.74)]">
-            {summary.sector} · {summary.industry}. This page mirrors the symbol landing pages on the reference site, but the data is computed from Alpaca option contracts and live snapshots.
+            {summary.sector} · {summary.industry}. This page is the symbol intelligence layer: contract ranking, ownership context, and the fastest route to compare both legs of the wheel on one name.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link

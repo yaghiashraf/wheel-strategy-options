@@ -42,7 +42,7 @@ export function OpportunityTable({
         </thead>
         <tbody>
           {opportunities.map((item) => (
-            <tr key={item.contractSymbol} className="border-b border-[rgba(17,24,39,0.06)] align-top">
+            <tr key={item.contractSymbol} className="border-b border-[rgba(244,239,229,0.06)] align-top">
               <td className="px-4 py-4">
                 <p className="font-semibold text-[var(--ink)]">{item.symbol}</p>
                 <p className="max-w-[16rem] text-xs text-[var(--muted)]">{item.companyName}</p>
@@ -67,7 +67,7 @@ export function OpportunityTable({
               <td className="px-4 py-4">
                 <Link
                   href={`/${strategy}/${item.symbol.toLowerCase()}`}
-                  className="inline-flex rounded-full border border-[var(--line)] px-3 py-2 text-xs font-semibold text-[var(--ink)] transition hover:border-[var(--teal-700)] hover:text-[var(--teal-700)]"
+                  className="inline-flex rounded-full border border-[var(--line)] bg-[rgba(255,255,255,0.04)] px-3 py-2 text-xs font-semibold text-[var(--ink)] transition hover:border-[var(--teal-700)] hover:text-[var(--teal-700)]"
                 >
                   View symbol
                 </Link>

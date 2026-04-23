@@ -1,21 +1,27 @@
 @import "tailwindcss";
 
 :root {
-  --paper: #f3ecdd;
-  --sand: #fff8eb;
-  --ink: #172126;
-  --muted: #5d675f;
-  --line: rgba(23, 33, 38, 0.12);
-  --night: #0b181a;
-  --night-2: #11252a;
-  --teal: #2a8678;
-  --teal-700: #11564d;
-  --mint: #78d8c6;
-  --mint-soft: rgba(120, 216, 198, 0.18);
-  --gold: #f0bd51;
-  --gold-soft: rgba(240, 189, 81, 0.18);
-  --rust: #9f5520;
-  --rose: #9f2a3b;
+  --paper: #081118;
+  --sand: #f4efe5;
+  --ink: #eef3f6;
+  --muted: #96a6af;
+  --line: rgba(244, 239, 229, 0.12);
+  --line-strong: rgba(244, 239, 229, 0.22);
+  --night: #071116;
+  --night-2: #0c1820;
+  --night-3: #112632;
+  --panel: rgba(10, 23, 30, 0.76);
+  --panel-strong: rgba(9, 19, 25, 0.92);
+  --panel-soft: rgba(15, 31, 40, 0.64);
+  --teal: #38a391;
+  --teal-700: #79cbbc;
+  --mint: #83e1cf;
+  --mint-soft: rgba(131, 225, 207, 0.14);
+  --gold: #f0c160;
+  --gold-soft: rgba(240, 193, 96, 0.16);
+  --gold-glow: rgba(240, 193, 96, 0.28);
+  --rust: #d7a256;
+  --rose: #ff8e95;
 }
 
 * {
@@ -30,11 +36,24 @@ body {
   margin: 0;
   min-height: 100vh;
   background:
-    radial-gradient(circle at top left, rgba(42, 134, 120, 0.18), transparent 28rem),
-    radial-gradient(circle at top right, rgba(240, 189, 81, 0.18), transparent 24rem),
-    linear-gradient(180deg, #efe6d3 0%, #f8f2e4 45%, #f3ecdd 100%);
+    radial-gradient(circle at top left, rgba(56, 163, 145, 0.18), transparent 32rem),
+    radial-gradient(circle at top right, rgba(240, 193, 96, 0.12), transparent 28rem),
+    linear-gradient(180deg, #071116 0%, #09141b 24%, #0a161d 100%);
   color: var(--ink);
   font-family: "Avenir Next", "Segoe UI", "Helvetica Neue", sans-serif;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+  background-size: 72px 72px;
+  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.95), rgba(0, 0, 0, 0.35));
+  pointer-events: none;
 }
 
 a {
@@ -42,76 +61,207 @@ a {
   text-decoration: none;
 }
 
+button,
 input {
   font: inherit;
 }
 
+button {
+  cursor: pointer;
+}
+
 ::selection {
-  background: rgba(42, 134, 120, 0.24);
+  background: rgba(56, 163, 145, 0.3);
 }
 
 .page-wrap {
   margin: 0 auto;
-  max-width: 84rem;
+  max-width: 88rem;
   padding: 2rem 1.25rem 0;
 }
 
-.hero-panel {
+.hero-panel,
+.panel,
+.metric-card,
+.table-shell {
+  position: relative;
   overflow: hidden;
-  border: 1px solid rgba(255, 248, 235, 0.1);
+  border: 1px solid var(--line);
+  backdrop-filter: blur(20px);
+}
+
+.hero-panel {
   border-radius: 2rem;
   background:
-    linear-gradient(145deg, rgba(11, 24, 26, 0.96), rgba(17, 37, 42, 0.94)),
-    radial-gradient(circle at top right, rgba(240, 189, 81, 0.24), transparent 20rem);
+    radial-gradient(circle at top right, rgba(240, 193, 96, 0.16), transparent 22rem),
+    radial-gradient(circle at bottom left, rgba(56, 163, 145, 0.16), transparent 22rem),
+    linear-gradient(145deg, rgba(9, 19, 25, 0.98), rgba(16, 33, 42, 0.92));
   padding: 2rem;
-  box-shadow: 0 24px 70px rgba(11, 24, 26, 0.14);
+  box-shadow: 0 28px 90px rgba(2, 8, 11, 0.46);
+}
+
+.hero-panel::after,
+.panel::after,
+.metric-card::after,
+.table-shell::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), transparent 28%);
+  pointer-events: none;
 }
 
 .panel {
-  border: 1px solid var(--line);
-  border-radius: 2rem;
-  background: rgba(255, 251, 243, 0.88);
-  box-shadow: 0 24px 60px rgba(17, 24, 39, 0.06);
+  border-radius: 1.8rem;
+  background: linear-gradient(180deg, var(--panel), rgba(10, 20, 27, 0.92));
+  box-shadow: 0 18px 56px rgba(2, 8, 11, 0.3);
+}
+
+.metric-card {
+  border-radius: 1.5rem;
+  background:
+    radial-gradient(circle at top right, rgba(240, 193, 96, 0.08), transparent 12rem),
+    linear-gradient(180deg, rgba(14, 28, 36, 0.94), rgba(10, 21, 28, 0.92));
+  padding: 1.2rem;
+  box-shadow: 0 18px 44px rgba(2, 8, 11, 0.26);
+}
+
+.metric-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(150, 166, 175, 0.88);
+}
+
+.metric-value {
+  margin-top: 0.75rem;
+  font-size: clamp(1.5rem, 2vw, 2.25rem);
+  font-weight: 700;
+  line-height: 1.02;
+  color: var(--ink);
+}
+
+.table-shell {
+  border-radius: 1.8rem;
+  background: linear-gradient(180deg, rgba(10, 22, 29, 0.94), rgba(9, 18, 24, 0.96));
+  box-shadow: 0 22px 62px rgba(2, 8, 11, 0.32);
+}
+
+.table-shell table {
+  color: var(--ink);
+}
+
+.table-shell thead {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.table-shell tbody tr {
+  transition: background-color 180ms ease;
+}
+
+.table-shell tbody tr:hover {
+  background: rgba(255, 255, 255, 0.03);
 }
 
 .section-kicker {
   font-size: 0.72rem;
   font-weight: 700;
-  letter-spacing: 0.22em;
+  letter-spacing: 0.24em;
   text-transform: uppercase;
-  color: rgba(255, 248, 235, 0.66);
+  color: rgba(244, 239, 229, 0.58);
 }
 
-.metric-card {
+.display-title {
+  font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+  letter-spacing: -0.04em;
+}
+
+.eyebrow-chip,
+.status-pill,
+.nav-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
   border: 1px solid var(--line);
-  border-radius: 1.6rem;
-  background: rgba(255, 251, 243, 0.92);
-  padding: 1.2rem;
-  box-shadow: 0 18px 40px rgba(17, 24, 39, 0.05);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.05);
 }
 
-.metric-label {
+.eyebrow-chip {
+  padding: 0.45rem 0.8rem;
   font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--muted);
+  color: rgba(244, 239, 229, 0.82);
 }
 
-.metric-value {
-  margin-top: 0.7rem;
-  font-size: clamp(1.5rem, 2vw, 2.1rem);
+.status-pill {
+  padding: 0.45rem 0.8rem;
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: rgba(244, 239, 229, 0.86);
+}
+
+.nav-chip {
+  padding: 0.5rem 0.95rem;
+  color: rgba(244, 239, 229, 0.7);
+  transition: 180ms ease;
+}
+
+.nav-chip:hover {
+  border-color: var(--line-strong);
+  color: white;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.hero-stat {
+  border: 1px solid rgba(244, 239, 229, 0.08);
+  border-radius: 1.4rem;
+  background: rgba(255, 255, 255, 0.04);
+  padding: 1rem 1.1rem;
+}
+
+.hero-stat-label {
+  font-size: 0.72rem;
   font-weight: 700;
-  line-height: 1.05;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(244, 239, 229, 0.52);
+}
+
+.hero-stat-value {
+  margin-top: 0.65rem;
+  font-size: 1.35rem;
+  font-weight: 700;
+  line-height: 1.1;
   color: var(--ink);
 }
 
-.table-shell {
-  overflow-x: auto;
-  border: 1px solid var(--line);
-  border-radius: 2rem;
-  background: rgba(255, 251, 243, 0.9);
-  box-shadow: 0 20px 50px rgba(17, 24, 39, 0.06);
+.premium-card {
+  border: 1px solid rgba(244, 239, 229, 0.08);
+  border-radius: 1.4rem;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+  padding: 1rem 1.1rem;
+}
+
+.premium-card-muted {
+  color: var(--muted);
+}
+
+.subtle-grid::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.024) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.024) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(circle at top left, black, transparent 72%);
+  pointer-events: none;
 }
 
 .field {
@@ -120,26 +270,32 @@ input {
 }
 
 .field-label {
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   font-weight: 700;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--muted);
+  color: rgba(150, 166, 175, 0.88);
 }
 
 .field-input {
   width: 100%;
-  border: 1px solid rgba(17, 24, 39, 0.12);
+  border: 1px solid rgba(244, 239, 229, 0.1);
   border-radius: 1rem;
-  background: white;
-  padding: 0.85rem 1rem;
+  background: rgba(255, 255, 255, 0.04);
+  padding: 0.9rem 1rem;
   color: var(--ink);
   outline: none;
+  transition: 180ms ease;
+}
+
+.field-input::placeholder {
+  color: rgba(150, 166, 175, 0.72);
 }
 
 .field-input:focus {
-  border-color: rgba(17, 86, 77, 0.42);
-  box-shadow: 0 0 0 3px rgba(120, 216, 198, 0.18);
+  border-color: rgba(131, 225, 207, 0.42);
+  box-shadow: 0 0 0 3px rgba(131, 225, 207, 0.14);
+  background: rgba(255, 255, 255, 0.06);
 }
 
 .primary-button,
@@ -151,7 +307,7 @@ input {
   justify-content: center;
   gap: 0.55rem;
   border-radius: 999px;
-  padding: 0.85rem 1.2rem;
+  padding: 0.88rem 1.25rem;
   font-size: 0.9rem;
   font-weight: 700;
   transition: 180ms ease;
@@ -159,33 +315,56 @@ input {
 
 .primary-button,
 .cta-link {
-  border: 1px solid rgba(240, 189, 81, 0.16);
-  background: linear-gradient(135deg, var(--gold), #f59f37);
-  color: #362100;
+  border: 1px solid rgba(240, 193, 96, 0.28);
+  background: linear-gradient(135deg, var(--gold), #d89631);
+  color: #2a1a00;
+  box-shadow: 0 12px 30px rgba(240, 193, 96, 0.18);
 }
 
 .primary-button:hover,
 .cta-link:hover {
   transform: translateY(-1px);
-  box-shadow: 0 14px 24px rgba(245, 159, 55, 0.22);
+  box-shadow: 0 16px 36px rgba(240, 193, 96, 0.24);
 }
 
 .secondary-button,
 .mobile-nav-chip {
-  border: 1px solid rgba(255, 248, 235, 0.16);
-  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(244, 239, 229, 0.14);
+  background: rgba(255, 255, 255, 0.05);
   color: var(--sand);
+}
+
+.secondary-button:hover,
+.mobile-nav-chip:hover {
+  border-color: var(--line-strong);
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .mobile-nav-chip {
   white-space: nowrap;
-  padding: 0.6rem 0.95rem;
+  padding: 0.62rem 0.98rem;
   font-size: 0.8rem;
+}
+
+.dashboard-strip {
+  display: grid;
+  gap: 1rem;
+}
+
+.glass-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(244, 239, 229, 0.16), transparent);
+}
+
+.terminal-note {
+  color: rgba(150, 166, 175, 0.9);
+  font-size: 0.9rem;
+  line-height: 1.75;
 }
 
 @media (max-width: 768px) {
   .page-wrap {
-    padding-top: 1.2rem;
+    padding-top: 1rem;
   }
 
   .hero-panel {
@@ -194,7 +373,8 @@ input {
   }
 
   .panel,
+  .metric-card,
   .table-shell {
-    border-radius: 1.5rem;
+    border-radius: 1.4rem;
   }
 }

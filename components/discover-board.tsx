@@ -61,19 +61,25 @@ export function DiscoverBoard() {
   return (
     <div className="grid gap-6">
       <div className="grid gap-4 lg:grid-cols-3">
-        <section className="panel p-5">
+        <section className="panel p-5 md:p-6">
           <p className="section-kicker">Covered Calls</p>
-          <h3 className="mt-2 text-2xl font-semibold">Shortlist covered calls with live option snapshots.</h3>
+          <h3 className="mt-2 text-2xl font-semibold text-[var(--ink)]">
+            Shortlist covered calls with live option snapshots.
+          </h3>
+          <p className="terminal-note mt-3">
+            Start from names you can own comfortably, then optimize premium capture without overreaching on delta or giving away too much upside.
+          </p>
           <div className="mt-5 space-y-3">
             {data.coveredCalls.slice(0, 4).map((item) => (
-              <div key={item.contractSymbol} className="rounded-3xl border border-[var(--line)] bg-white/90 p-4">
+              <div key={item.contractSymbol} className="premium-card">
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <p className="text-sm font-semibold text-[var(--ink)]">
                       {item.symbol} {formatCurrency(item.strike)} exp {item.expirationDate}
                     </p>
                     <p className="mt-1 text-sm text-[var(--muted)]">
-                      Premium {formatCurrency(item.premium)} | Yield {formatPercent(item.yieldPct)} | Delta {item.delta?.toFixed(2) ?? "—"}
+                      Premium {formatCurrency(item.premium)} | Yield {formatPercent(item.yieldPct)} | Delta{" "}
+                      {item.delta?.toFixed(2) ?? "—"}
                     </p>
                   </div>
                   <span className="rounded-full bg-[var(--mint-soft)] px-3 py-1 text-xs font-semibold text-[var(--teal-700)]">
@@ -88,12 +94,17 @@ export function DiscoverBoard() {
           </Link>
         </section>
 
-        <section className="panel p-5">
+        <section className="panel p-5 md:p-6">
           <p className="section-kicker">Cash-Secured Puts</p>
-          <h3 className="mt-2 text-2xl font-semibold">Rank put sales by yield, distance, and delta.</h3>
+          <h3 className="mt-2 text-2xl font-semibold text-[var(--ink)]">
+            Rank put sales by yield, distance, and delta.
+          </h3>
+          <p className="terminal-note mt-3">
+            Price the entry you actually want. The best setups balance assignment quality, premium efficiency, and enough distance to avoid sloppy fills.
+          </p>
           <div className="mt-5 space-y-3">
             {data.cashSecuredPuts.slice(0, 4).map((item) => (
-              <div key={item.contractSymbol} className="rounded-3xl border border-[var(--line)] bg-white/90 p-4">
+              <div key={item.contractSymbol} className="premium-card">
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <p className="text-sm font-semibold text-[var(--ink)]">
@@ -115,12 +126,17 @@ export function DiscoverBoard() {
           </Link>
         </section>
 
-        <section className="panel p-5">
+        <section className="panel p-5 md:p-6">
           <p className="section-kicker">Stock Quality</p>
-          <h3 className="mt-2 text-2xl font-semibold">Blend fundamentals with wheel suitability.</h3>
+          <h3 className="mt-2 text-2xl font-semibold text-[var(--ink)]">
+            Blend stock quality with wheel suitability.
+          </h3>
+          <p className="terminal-note mt-3">
+            Treat this as the ownership filter. If the stock fails here, the option premium should not rescue the idea.
+          </p>
           <div className="mt-5 space-y-3">
             {data.fundamentals.slice(0, 4).map((item) => (
-              <div key={item.symbol} className="rounded-3xl border border-[var(--line)] bg-white/90 p-4">
+              <div key={item.symbol} className="premium-card">
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <p className="text-sm font-semibold text-[var(--ink)]">{item.symbol}</p>
