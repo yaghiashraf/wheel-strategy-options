@@ -91,7 +91,7 @@ button {
 }
 
 .hero-panel {
-  border-radius: 2rem;
+  border-radius: 1rem;
   background:
     radial-gradient(circle at top right, rgba(240, 193, 96, 0.16), transparent 22rem),
     radial-gradient(circle at bottom left, rgba(56, 163, 145, 0.16), transparent 22rem),
@@ -113,13 +113,13 @@ button {
 }
 
 .panel {
-  border-radius: 1.8rem;
+  border-radius: 0.85rem;
   background: linear-gradient(180deg, var(--panel), rgba(10, 20, 27, 0.92));
   box-shadow: 0 18px 56px rgba(2, 8, 11, 0.3);
 }
 
 .metric-card {
-  border-radius: 1.5rem;
+  border-radius: 0.85rem;
   background:
     radial-gradient(circle at top right, rgba(240, 193, 96, 0.08), transparent 12rem),
     linear-gradient(180deg, rgba(14, 28, 36, 0.94), rgba(10, 21, 28, 0.92));
@@ -144,7 +144,7 @@ button {
 }
 
 .table-shell {
-  border-radius: 1.8rem;
+  border-radius: 0.85rem;
   background: linear-gradient(180deg, rgba(10, 22, 29, 0.94), rgba(9, 18, 24, 0.96));
   box-shadow: 0 22px 62px rgba(2, 8, 11, 0.32);
 }
@@ -219,7 +219,7 @@ button {
 
 .hero-stat {
   border: 1px solid rgba(244, 239, 229, 0.08);
-  border-radius: 1.4rem;
+  border-radius: 0.8rem;
   background: rgba(255, 255, 255, 0.04);
   padding: 1rem 1.1rem;
 }
@@ -242,7 +242,7 @@ button {
 
 .premium-card {
   border: 1px solid rgba(244, 239, 229, 0.08);
-  border-radius: 1.4rem;
+  border-radius: 0.8rem;
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
   padding: 1rem 1.1rem;
@@ -280,7 +280,7 @@ button {
 .field-input {
   width: 100%;
   border: 1px solid rgba(244, 239, 229, 0.1);
-  border-radius: 1rem;
+  border-radius: 0.55rem;
   background: rgba(255, 255, 255, 0.04);
   padding: 0.9rem 1rem;
   color: var(--ink);
@@ -311,6 +311,89 @@ button {
   font-size: 0.9rem;
   font-weight: 700;
   transition: 180ms ease;
+}
+
+.compact-button {
+  min-height: 2.45rem;
+  padding: 0.65rem 1rem;
+}
+
+.desk-header {
+  display: grid;
+  gap: 1rem;
+  align-items: end;
+  border-bottom: 1px solid var(--line);
+  padding: 0.5rem 0 1.25rem;
+}
+
+.scan-stat {
+  min-width: 8.5rem;
+  border: 1px solid var(--line);
+  border-radius: 0.65rem;
+  background: rgba(255, 255, 255, 0.035);
+  padding: 0.75rem 0.85rem;
+}
+
+.scan-stat span {
+  display: block;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.scan-stat strong {
+  display: block;
+  margin-top: 0.35rem;
+  font-size: 1rem;
+  color: var(--ink);
+}
+
+.segmented-control {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  border: 1px solid var(--line);
+  border-radius: 0.7rem;
+  background: rgba(255, 255, 255, 0.035);
+  padding: 0.3rem;
+}
+
+.segment-button {
+  min-height: 2.25rem;
+  border: 0;
+  border-radius: 0.5rem;
+  background: transparent;
+  padding: 0.5rem 0.75rem;
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-weight: 700;
+  transition: 160ms ease;
+}
+
+.segment-button:hover {
+  color: var(--ink);
+}
+
+.segment-button.active {
+  background: rgba(131, 225, 207, 0.13);
+  color: var(--mint);
+}
+
+.progress-track {
+  height: 0.55rem;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.progress-track > div {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--mint), var(--gold));
+  transition: width 220ms ease;
 }
 
 .primary-button,
@@ -369,12 +452,22 @@ button {
 
   .hero-panel {
     padding: 1.4rem;
-    border-radius: 1.6rem;
+    border-radius: 0.9rem;
   }
 
   .panel,
   .metric-card,
   .table-shell {
-    border-radius: 1.4rem;
+    border-radius: 0.8rem;
+  }
+
+  .desk-header {
+    padding-top: 0;
+  }
+}
+
+@media (min-width: 1024px) {
+  .desk-header {
+    grid-template-columns: minmax(0, 1fr) auto;
   }
 }

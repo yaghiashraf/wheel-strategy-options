@@ -27,6 +27,7 @@ export async function GET(request: NextRequest) {
       maxDelta: Number(request.nextUrl.searchParams.get("maxDelta") ?? 0.45),
       minOtm: Number(request.nextUrl.searchParams.get("minOtm") ?? 0),
       maxResults: Number(request.nextUrl.searchParams.get("maxResults") ?? 40),
+      contractLimit: Number(request.nextUrl.searchParams.get("contractLimit") ?? 80),
     });
 
     return NextResponse.json(payload);

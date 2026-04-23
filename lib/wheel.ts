@@ -19,7 +19,7 @@ import type {
   Strategy,
   StrategySummary,
 } from "@/lib/types";
-import { DEFAULT_SYMBOLS } from "@/lib/universe";
+import { DEFAULT_SYMBOLS, getUniverseSymbols } from "@/lib/universe";
 
 function getTodayIso() {
   return new Date().toISOString().slice(0, 10);
@@ -90,10 +90,9 @@ export async function getStrategyIdeas(
   const maxDelta = filters.maxDelta ?? 0.45;
   const minOtm = filters.minOtm ?? 0;
   const maxResults = filters.maxResults ?? 30;
+  const contractLimit = filters.contractLimit ?? 80;
 
   const stockSnapshots = await getStockSnapshots(normalizedSymbols);
-  const companies = await getFundamentalRows(normalizedSymbols);
-  const companyBySymbol = new Map(companies.map((item) => [item.symbol, item]));
 
   const contractBatches = await Promise.all(
     normalizedSymbols.map(async (symbol) => {
@@ -114,7 +113,7 @@ export async function getStrategyIdeas(
         expirationDateLte: addDays(maxDte),
         strikePriceGte,
         strikePriceLte,
-        limit: 220,
+        limit: contractLimit,
       });
 
       return contracts.map((contract) => ({
@@ -147,10 +146,10 @@ export async function getStrategyIdeas(
           : ((stockPrice - strike) / stockPrice) * 100;
       const assignmentProbabilityPct = delta === null ? null : Math.abs(delta) * 100;
       const baseSymbol = contract.underlying_symbol ?? underlyingSymbol;
+      const metadata = getCompanyMetadata(baseSymbol);
       const row: OptionOpportunity = {
         symbol: baseSymbol,
-        companyName: companyBySymbol.get(baseSymbol)?.companyName ??
-          getCompanyMetadata(baseSymbol).companyName,
+        companyName: metadata.companyName,
         contractSymbol: contract.symbol,
         strategy,
         expirationDate: contract.expiration_date,
@@ -177,7 +176,7 @@ export async function getStrategyIdeas(
       return {
         ...row,
         symbol: baseSymbol,
-        companyName: companyBySymbol.get(baseSymbol)?.companyName ?? getCompanyMetadata(baseSymbol).companyName,
+        companyName: metadata.companyName,
       };
     })
     .filter((item) => {
@@ -208,6 +207,7 @@ export async function getStrategyIdeas(
       maxDelta,
       minOtm,
       maxResults,
+      contractLimit,
     },
     opportunities,
   };
@@ -220,7 +220,7 @@ export async function getFundamentalIdeas(symbols: string[]) {
 }
 
 export async function getDiscoverPayload(): Promise<DiscoverPayload> {
-  const universe = DEFAULT_SYMBOLS;
+  const universe = (await getUniverseSymbols("dow")).symbols;
   const [coveredCalls, cashSecuredPuts, fundamentals] = await Promise.all([
     getStrategyIdeas("covered-call", {
       symbols: universe,
@@ -230,6 +230,7 @@ export async function getDiscoverPayload(): Promise<DiscoverPayload> {
       maxDelta: 0.42,
       minOtm: 1,
       maxResults: 8,
+      contractLimit: 50,
     }),
     getStrategyIdeas("cash-secured-put", {
       symbols: universe,
@@ -239,6 +240,7 @@ export async function getDiscoverPayload(): Promise<DiscoverPayload> {
       maxDelta: 0.38,
       minOtm: 2,
       maxResults: 8,
+      contractLimit: 50,
     }),
     getFundamentalIdeas(universe),
   ]);

@@ -1,14 +1,64 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { Pause, Play, RotateCcw } from "lucide-react";
 import type { OptionOpportunity, Strategy } from "@/lib/types";
 import { OpportunityTable } from "@/components/opportunity-table";
+import type { UniverseName } from "@/lib/universe";
 
 type StrategyResponse = {
   generatedAt: string;
   strategy: Strategy;
   opportunities: OptionOpportunity[];
 };
+
+type UniverseResponse = {
+  name: UniverseName;
+  label: string;
+  symbols: string[];
+  count: number;
+  source: string;
+};
+
+type ScanProgress = {
+  completed: number;
+  total: number;
+  symbolsScanned: number;
+  totalSymbols: number;
+};
+
+const universeOptions: Array<{ value: UniverseName | "custom"; label: string }> = [
+  { value: "dow", label: "Dow 30" },
+  { value: "sp500", label: "S&P 500" },
+  { value: "core", label: "Core" },
+  { value: "custom", label: "Custom" },
+];
+
+function parseSymbols(value: string) {
+  return Array.from(
+    new Set(
+      value
+        .split(/[,\s]+/)
+        .map((item) => item.trim().toUpperCase())
+        .filter(Boolean),
+    ),
+  );
+}
+
+function chunkSymbols(symbols: string[], size: number) {
+  const chunks: string[][] = [];
+  for (let index = 0; index < symbols.length; index += size) {
+    chunks.push(symbols.slice(index, index + size));
+  }
+
+  return chunks;
+}
+
+function rankOpportunities(opportunities: OptionOpportunity[]) {
+  return opportunities.sort(
+    (left, right) => right.score - left.score || right.yieldPct - left.yieldPct,
+  );
+}
 
 export function StrategyWorkbench({
   strategy,
@@ -21,100 +71,199 @@ export function StrategyWorkbench({
   title: string;
   description: string;
 }) {
+  const scanIdRef = useRef(0);
+  const [universeMode, setUniverseMode] = useState<UniverseName | "custom">("dow");
   const [symbols, setSymbols] = useState(defaultSymbols);
   const [minDte, setMinDte] = useState("7");
   const [maxDte, setMaxDte] = useState("45");
   const [minYield, setMinYield] = useState(strategy === "covered-call" ? "0.4" : "0.45");
   const [maxDelta, setMaxDelta] = useState(strategy === "covered-call" ? "0.42" : "0.38");
   const [minOtm, setMinOtm] = useState(strategy === "covered-call" ? "1" : "2");
+  const [batchSize, setBatchSize] = useState("18");
+  const [contractLimit, setContractLimit] = useState("50");
   const [rows, setRows] = useState<OptionOpportunity[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
+  const [universeLabel, setUniverseLabel] = useState("Dow 30");
+  const [universeCount, setUniverseCount] = useState(30);
+  const [progress, setProgress] = useState<ScanProgress>({
+    completed: 0,
+    total: 0,
+    symbolsScanned: 0,
+    totalSymbols: 0,
+  });
 
-  async function loadData() {
+  async function loadUniverseSymbols(mode: UniverseName | "custom") {
+    if (mode === "custom") {
+      const customSymbols = parseSymbols(symbols);
+      return {
+        label: "Custom",
+        symbols: customSymbols,
+        source: "manual",
+      };
+    }
+
+    const response = await fetch(`/api/universe?name=${mode}`, { cache: "no-store" });
+    const payload = (await response.json()) as UniverseResponse | { error: string };
+    if (!response.ok || "error" in payload) {
+      throw new Error("error" in payload ? payload.error : "Failed to load universe.");
+    }
+
+    return payload;
+  }
+
+  async function loadData(nextMode = universeMode) {
+    const scanId = scanIdRef.current + 1;
+    scanIdRef.current = scanId;
     setLoading(true);
     setError(null);
+    setRows([]);
+    setProgress({
+      completed: 0,
+      total: 0,
+      symbolsScanned: 0,
+      totalSymbols: 0,
+    });
 
     try {
-      const params = new URLSearchParams({
-        strategy,
-        symbols,
-        minDte,
-        maxDte,
-        minYield,
-        maxDelta,
-        minOtm,
-        maxResults: "40",
+      const universe = await loadUniverseSymbols(nextMode);
+      const selectedSymbols = universe.symbols;
+      const chunks = chunkSymbols(selectedSymbols, Math.max(1, Number(batchSize) || 18));
+      const merged = new Map<string, OptionOpportunity>();
+
+      setUniverseLabel(universe.label);
+      setUniverseCount(selectedSymbols.length);
+      setProgress({
+        completed: 0,
+        total: chunks.length,
+        symbolsScanned: 0,
+        totalSymbols: selectedSymbols.length,
       });
 
-      const response = await fetch(`/api/screener?${params.toString()}`, {
-        cache: "no-store",
-      });
+      for (const [index, chunk] of chunks.entries()) {
+        if (scanIdRef.current !== scanId) {
+          return;
+        }
 
-      const payload = (await response.json()) as StrategyResponse | { error: string };
-      if (!response.ok || "error" in payload) {
-        throw new Error("error" in payload ? payload.error : "Failed to load screener.");
+        const params = new URLSearchParams({
+          strategy,
+          symbols: chunk.join(","),
+          minDte,
+          maxDte,
+          minYield,
+          maxDelta,
+          minOtm,
+          maxResults: "20",
+          contractLimit,
+        });
+
+        const response = await fetch(`/api/screener?${params.toString()}`, {
+          cache: "no-store",
+        });
+
+        const payload = (await response.json()) as StrategyResponse | { error: string };
+        if (!response.ok || "error" in payload) {
+          throw new Error("error" in payload ? payload.error : "Failed to load screener.");
+        }
+
+        for (const opportunity of payload.opportunities) {
+          merged.set(opportunity.contractSymbol, opportunity);
+        }
+
+        const nextRows = rankOpportunities(Array.from(merged.values())).slice(0, 80);
+        setRows(nextRows);
+        setProgress({
+          completed: index + 1,
+          total: chunks.length,
+          symbolsScanned: Math.min(selectedSymbols.length, (index + 1) * chunk.length),
+          totalSymbols: selectedSymbols.length,
+        });
       }
 
-      setRows(payload.opportunities);
-      setLastUpdated(payload.generatedAt);
+      setLastUpdated(new Date().toISOString());
     } catch (issue) {
       setError(issue instanceof Error ? issue.message : "Failed to load screener.");
     } finally {
-      setLoading(false);
+      if (scanIdRef.current === scanId) {
+        setLoading(false);
+      }
     }
   }
 
+  function stopScan() {
+    scanIdRef.current += 1;
+    setLoading(false);
+  }
+
   useEffect(() => {
-    loadData();
+    loadData("dow");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [strategy]);
 
+  const progressPct =
+    progress.total > 0 ? Math.round((progress.completed / progress.total) * 100) : 0;
+  const runLabel = loading ? "Scanning..." : universeMode === "sp500" ? "Scan S&P 500" : "Run scan";
+
   return (
     <div className="grid gap-6">
-      <section className="hero-panel subtle-grid">
-        <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-end">
-          <div className="max-w-3xl">
-            <span className="eyebrow-chip">{title}</span>
-            <h1 className="display-title mt-5 text-4xl font-semibold leading-[0.96] text-[var(--sand)] md:text-6xl">
-              {description}
-            </h1>
-            <p className="mt-5 max-w-2xl text-base leading-7 text-[rgba(255,248,235,0.74)]">
-              Alpaca handles the option chain, quotes, and greeks. This desk ranks contracts by raw yield, annualized yield, OTM distance, delta fit, and liquidity instead of forcing you to scan chains manually.
-            </p>
+      <section className="desk-header">
+        <div>
+          <p className="section-kicker">{title}</p>
+          <h1 className="mt-2 text-3xl font-semibold leading-tight text-[var(--ink)] md:text-4xl">
+            {description}
+          </h1>
+        </div>
+        <div className="grid gap-2 sm:grid-cols-3">
+          <div className="scan-stat">
+            <span>Universe</span>
+            <strong>{universeLabel}</strong>
           </div>
-          <div className="dashboard-strip">
-            <div className="hero-stat">
-              <p className="hero-stat-label">Default universe</p>
-              <p className="hero-stat-value">{defaultSymbols}</p>
-            </div>
-            <div className="hero-stat">
-              <p className="hero-stat-label">Target window</p>
-              <p className="hero-stat-value">
-                {minDte}-{maxDte} DTE
-              </p>
-            </div>
-            <div className="hero-stat">
-              <p className="hero-stat-label">Rank emphasis</p>
-              <p className="hero-stat-value">
-                {strategy === "covered-call" ? "Income with controlled upside sacrifice" : "Premium with disciplined assignment price"}
-              </p>
-            </div>
+          <div className="scan-stat">
+            <span>Symbols</span>
+            <strong>{universeCount}</strong>
+          </div>
+          <div className="scan-stat">
+            <span>Matches</span>
+            <strong>{rows.length}</strong>
           </div>
         </div>
       </section>
 
       <section className="panel p-5 md:p-6">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <p className="section-kicker">Filter Deck</p>
-            <p className="mt-2 text-xl font-semibold text-[var(--ink)]">Tune the contract shortlist before you run the desk.</p>
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--line)] pb-4">
+          <div className="segmented-control">
+            {universeOptions.map((option) => (
+              <button
+                key={option.value}
+                className={universeMode === option.value ? "segment-button active" : "segment-button"}
+                onClick={() => {
+                  setUniverseMode(option.value);
+                  if (option.value !== "custom") {
+                    setUniverseLabel(option.label);
+                  }
+                }}
+                type="button"
+              >
+                {option.label}
+              </button>
+            ))}
           </div>
-          <span className="status-pill">Live option chain and greeks</span>
+          <div className="flex flex-wrap gap-2">
+            {loading ? (
+              <button onClick={stopScan} className="secondary-button compact-button" type="button">
+                <Pause className="h-4 w-4" />
+                Stop
+              </button>
+            ) : null}
+            <button onClick={() => loadData()} className="primary-button compact-button" disabled={loading} type="button">
+              {loading ? <RotateCcw className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />}
+              {runLabel}
+            </button>
+          </div>
         </div>
-        <div className="glass-divider my-5" />
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
+
+        <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-8">
           <label className="field">
             <span className="field-label">Symbols</span>
             <input
@@ -144,22 +293,41 @@ export function StrategyWorkbench({
             <span className="field-label">Min OTM %</span>
             <input value={minOtm} onChange={(event) => setMinOtm(event.target.value)} className="field-input" />
           </label>
+          <label className="field">
+            <span className="field-label">Batch Size</span>
+            <input value={batchSize} onChange={(event) => setBatchSize(event.target.value)} className="field-input" />
+          </label>
+          <label className="field">
+            <span className="field-label">Contracts/Symbol</span>
+            <input
+              value={contractLimit}
+              onChange={(event) => setContractLimit(event.target.value)}
+              className="field-input"
+            />
+          </label>
         </div>
-        <div className="mt-5 flex flex-wrap items-center gap-3">
-          <button onClick={loadData} className="primary-button" type="button">
-            Run desk
-          </button>
+
+        <div className="mt-5 grid gap-3">
+          <div className="progress-track">
+            <div style={{ width: `${progressPct}%` }} />
+          </div>
+          <div className="flex flex-wrap items-center justify-between gap-3 text-sm text-[var(--muted)]">
+            <p>
+              {progress.total > 0
+                ? `${progress.completed}/${progress.total} batches | ${progress.symbolsScanned}/${progress.totalSymbols} symbols`
+                : "Ready"}
+            </p>
           {lastUpdated ? (
-            <p className="text-sm text-[var(--muted)]">
+            <p>
               Updated {new Date(lastUpdated).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" })}
             </p>
           ) : null}
+          </div>
         </div>
       </section>
 
-      {loading ? <div className="panel p-6 text-sm text-[var(--muted)]">Loading options data...</div> : null}
       {error ? <div className="panel p-6 text-sm text-[var(--rose)]">{error}</div> : null}
-      {!loading && !error ? <OpportunityTable opportunities={rows} strategy={strategy} /> : null}
+      {!error ? <OpportunityTable opportunities={rows} strategy={strategy} /> : null}
     </div>
   );
 }

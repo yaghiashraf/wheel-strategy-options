@@ -8,6 +8,7 @@ export type ScreenerFilters = {
   maxDelta: number;
   minOtm: number;
   maxResults: number;
+  contractLimit: number;
 };
 
 export type OptionOpportunity = {
