@@ -10,22 +10,31 @@ if (!token) {
   throw new Error("VERCEL_TOKEN is not set.");
 }
 
+function requiredEnv(name, fallbackName) {
+  const value = process.env[name] || (fallbackName ? process.env[fallbackName] : "");
+  if (!value) {
+    throw new Error(`${name}${fallbackName ? ` or ${fallbackName}` : ""} is not set.`);
+  }
+
+  return value;
+}
+
 const envVars = [
   {
     key: "APCA_API_KEY_ID",
-    value: "PK4NR6VJPAQEYQO2ZI6HZEVU5N",
+    value: requiredEnv("APCA_API_KEY_ID", "ALPACA_API_KEY"),
     type: "encrypted",
     target: ["production", "preview", "development"],
   },
   {
     key: "APCA_API_SECRET_KEY",
-    value: "EbS2W4KsatNseGULPWuzLnqYemef4Eabr8XApKrCZ9JX",
+    value: requiredEnv("APCA_API_SECRET_KEY", "ALPACA_SECRET_KEY"),
     type: "encrypted",
     target: ["production", "preview", "development"],
   },
   {
     key: "APCA_API_BASE_URL",
-    value: "https://paper-api.alpaca.markets/v2",
+    value: process.env.APCA_API_BASE_URL || process.env.ALPACA_BASE_URL || "https://paper-api.alpaca.markets/v2",
     type: "plain",
     target: ["production", "preview", "development"],
   },

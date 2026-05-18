@@ -130,6 +130,7 @@ export const UNIVERSE_LABELS: Record<UniverseName, string> = {
   sp500: "S&P 500",
 };
 
+const TARGET_SP500_SYMBOL_COUNT = 500;
 const SP500_URL = "https://en.wikipedia.org/wiki/List_of_S%26P_500_companies";
 const DOW_URL = "https://en.wikipedia.org/wiki/Dow_Jones_Industrial_Average";
 
@@ -158,6 +159,14 @@ function uniqueSymbols(symbols: string[]) {
         .filter((symbol) => symbol !== "SYMBOL" && /^[A-Z][A-Z0-9-]*$/.test(symbol)),
     ),
   );
+}
+
+function normalizeUniverseCount(name: UniverseName, symbols: string[]) {
+  if (name !== "sp500") {
+    return symbols;
+  }
+
+  return symbols.slice(0, TARGET_SP500_SYMBOL_COUNT);
 }
 
 function extractTables(html: string) {
@@ -233,7 +242,7 @@ export async function getUniverseSymbols(name: UniverseName) {
       return {
         name,
         label: UNIVERSE_LABELS[name],
-        symbols,
+        symbols: normalizeUniverseCount(name, symbols),
         source: name === "sp500" ? SP500_URL : DOW_URL,
       };
     }
@@ -245,7 +254,7 @@ export async function getUniverseSymbols(name: UniverseName) {
   return {
     name,
     label: UNIVERSE_LABELS[name],
-    symbols: fallbackSymbols,
+    symbols: normalizeUniverseCount(name, fallbackSymbols),
     source: "fallback",
   };
 }
